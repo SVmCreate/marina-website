@@ -1,24 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { getSanitySiteSettings } from '../lib/sanityQueries';
 
 export const Header: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteSettings, setSiteSettings] = useState({
+    siteTitle: 'MARINA',
+    siteDescription: 'Editorial & Fine Art Photography · Lisbon / Paris',
+    mainNavigation: [
+      { label: 'Portfolio', url: '/' },
+      { label: 'About', url: '/about' },
+      { label: 'Contacts', url: '/contacts' }
+    ]
+  });
   const [lang, setLang] = useState<'ENG' | 'RUS'>(() => {
     return (localStorage.getItem('app_lang') as 'ENG' | 'RUS') || 'ENG';
   });
+
+  useEffect(() => {
+    getSanitySiteSettings().then((res) => {
+      if (res) {
+        setSiteSettings({
+          siteTitle: res.siteTitle || 'MARINA',
+          siteDescription: res.siteDescription || 'Editorial & Fine Art Photography · Lisbon / Paris',
+          mainNavigation: res.mainNavigation && res.mainNavigation.length > 0 
+            ? res.mainNavigation.map((n: any) => ({ label: n.label, url: n.url }))
+            : [
+                { label: 'Portfolio', url: '/' },
+                { label: 'About', url: '/about' },
+                { label: 'Contacts', url: '/contacts' }
+              ]
+        });
+      }
+    });
+  }, []);
 
   const handleLangChange = (newLang: 'ENG' | 'RUS') => {
     setLang(newLang);
     localStorage.setItem('app_lang', newLang);
   };
 
-  const navItems = [
-    { path: '/', label: 'Portfolio' },
-    { path: '/about', label: 'About' },
-    { path: '/contacts', label: 'Contacts' }
-  ];
+  const navItems = siteSettings.mainNavigation.map((n) => ({
+    path: n.url,
+    label: n.label,
+  }));
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -49,7 +76,7 @@ export const Header: React.FC = () => {
               className="text-left font-serif text-lg tracking-[0.18em] text-[#1A1A1A] hover:opacity-70 transition-opacity"
               onClick={() => setMobileMenuOpen(false)}
             >
-              MARINA
+              {siteSettings.siteTitle}
             </Link>
           </div>
 
@@ -123,7 +150,7 @@ export const Header: React.FC = () => {
               className="font-serif text-lg tracking-[0.18em] text-[#1A1A1A] uppercase"
               onClick={() => setMobileMenuOpen(false)}
             >
-              MARINA
+              {siteSettings.siteTitle}
             </Link>
             <button
               type="button"

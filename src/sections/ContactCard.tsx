@@ -1,8 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, ArrowUpRight } from 'lucide-react';
+import { getSanityContact } from '../lib/sanityQueries';
 
 export const ContactCard: React.FC = () => {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const [contactData, setContactData] = useState({
+    title: 'CONTACT',
+    email: 'info@marinaphotography.com',
+    phone: '+351 912 345 678',
+    location: 'Lisbon Studio · Paris Representation',
+    representation: [
+      { city: 'Lisbon Studio', gallery: 'Rua do Século 14, Bairro Alto, Lisboa' },
+      { city: 'Paris Representation', gallery: "Galerie d'Art Aquatique, Rue Saint-Honoré" },
+    ],
+    socialLinks: [{ label: '@marina.photographs', url: 'https://instagram.com' }]
+  });
+
+  useEffect(() => {
+    getSanityContact().then((res) => {
+      if (res) {
+        setContactData({
+          title: res.title || 'CONTACT',
+          email: res.email || 'info@marinaphotography.com',
+          phone: res.phone || '+351 912 345 678',
+          location: res.location || 'Lisbon Studio · Paris Representation',
+          representation: res.representation && res.representation.length > 0 ? res.representation : [
+            { city: 'Lisbon Studio', gallery: 'Rua do Século 14, Bairro Alto, Lisboa' },
+            { city: 'Paris Representation', gallery: "Galerie d'Art Aquatique, Rue Saint-Honoré" },
+          ],
+          socialLinks: res.socialLinks && res.socialLinks.length > 0 ? res.socialLinks : [{ label: '@marina.photographs', url: 'https://instagram.com' }]
+        });
+      }
+    });
+  }, []);
 
   const handleCopyEmail = (emailStr: string) => {
     navigator.clipboard.writeText(emailStr);
@@ -17,7 +47,7 @@ export const ContactCard: React.FC = () => {
         {/* Centered Header Block */}
         <div className="space-y-4">
           <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#1A1A1A] font-light tracking-wide uppercase">
-            CONTACT
+            {contactData.title}
           </h2>
           <p className="font-sans text-xs md:text-sm text-[#555046] font-light leading-relaxed max-w-lg mx-auto">
             For fine art print acquisitions, archival series, press inquiries, or worldwide commissioned photographic work, please reach out directly or through gallery representation.
@@ -40,31 +70,11 @@ export const ContactCard: React.FC = () => {
                   Print Acquisitions & Sales
                 </span>
                 <button 
-                  onClick={() => handleCopyEmail('info@marinaphotography.com')}
+                  onClick={() => handleCopyEmail(contactData.email)}
                   className="text-[#1A1A1A] hover:text-[#666055] font-light transition-colors cursor-pointer flex items-center space-x-2 group"
                 >
-                  <span className="group-hover:underline">info@marinaphotography.com</span>
-                  {copiedEmail === 'info@marinaphotography.com' ? (
-                    <span className="text-[10px] font-mono text-emerald-700 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> copied
-                    </span>
-                  ) : (
-                    <ArrowUpRight className="w-3.5 h-3.5 text-[#8A857C] group-hover:text-[#1A1A1A] transition-colors" />
-                  )}
-                </button>
-              </div>
-
-              {/* Commissions & Press */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-[#EAE6DF]/60 gap-1">
-                <span className="text-[#8A857C] text-[11px] font-mono uppercase tracking-wider">
-                  Editorial & Commissions
-                </span>
-                <button 
-                  onClick={() => handleCopyEmail('studio@marinaphotography.com')}
-                  className="text-[#1A1A1A] hover:text-[#666055] font-light transition-colors cursor-pointer flex items-center space-x-2 group"
-                >
-                  <span className="group-hover:underline">studio@marinaphotography.com</span>
-                  {copiedEmail === 'studio@marinaphotography.com' ? (
+                  <span className="group-hover:underline">{contactData.email}</span>
+                  {copiedEmail === contactData.email ? (
                     <span className="text-[10px] font-mono text-emerald-700 flex items-center gap-1">
                       <Check className="w-3 h-3" /> copied
                     </span>
@@ -80,7 +90,7 @@ export const ContactCard: React.FC = () => {
                   Studio Phone / Signal
                 </span>
                 <span className="text-[#1A1A1A] font-light font-mono text-xs">
-                  +351 912 345 678
+                  {contactData.phone}
                 </span>
               </div>
             </div>

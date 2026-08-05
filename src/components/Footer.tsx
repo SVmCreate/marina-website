@@ -1,7 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getSanitySiteSettings } from '../lib/sanityQueries';
 
 export const Footer: React.FC = () => {
+  const [siteSettings, setSiteSettings] = useState({
+    siteTitle: 'MARINA',
+    siteDescription: 'Editorial & Fine Art Photography · Lisbon / Paris',
+  });
+
+  useEffect(() => {
+    getSanitySiteSettings().then((res) => {
+      if (res) {
+        setSiteSettings({
+          siteTitle: res.siteTitle || 'MARINA',
+          siteDescription: res.siteDescription || 'Editorial & Fine Art Photography · Lisbon / Paris',
+        });
+      }
+    });
+  }, []);
+
   return (
     <footer className="border-t border-[#EAE6DF] py-12 md:py-16 px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
@@ -12,10 +29,10 @@ export const Footer: React.FC = () => {
             to="/" 
             className="font-serif text-base tracking-[0.18em] text-[#1A1A1A] uppercase hover:opacity-70 transition-opacity block"
           >
-            MARINA
+            {siteSettings.siteTitle}
           </Link>
           <p className="font-mono text-[11px] tracking-wider text-[#8A857C] uppercase">
-            Editorial & Fine Art Photography · Lisbon / Paris
+            {siteSettings.siteDescription}
           </p>
         </div>
 
@@ -29,7 +46,7 @@ export const Footer: React.FC = () => {
 
         {/* Copyright */}
         <div className="font-mono text-[10px] md:text-[11px] tracking-widest text-[#8A857C] uppercase">
-          © {new Date().getFullYear()} MARINA · ALL RIGHTS RESERVED
+          © {new Date().getFullYear()} {siteSettings.siteTitle} · ALL RIGHTS RESERVED
         </div>
 
       </div>

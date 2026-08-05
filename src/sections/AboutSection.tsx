@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ABOUT_PORTRAIT_URL, ABOUT_GALLERY_URL, EXHIBITIONS_DATA } from '../data/portfolioData';
 import { ResponsiveImage } from '../components/ResponsiveImage';
+import { getSanityAbout } from '../lib/sanityQueries';
 
 export const AboutSection: React.FC = () => {
+  const [aboutData, setAboutData] = useState({
+    title: "MARINA VALITOVA DIDN'T SET OUT TO BECOME AN ARTIST.",
+    portraitImageUrl: ABOUT_PORTRAIT_URL,
+    galleryImageUrl: ABOUT_GALLERY_URL,
+    exhibitions: EXHIBITIONS_DATA,
+  });
+
+  useEffect(() => {
+    getSanityAbout().then((res) => {
+      if (res) {
+        setAboutData({
+          title: res.title || "MARINA VALITOVA DIDN'T SET OUT TO BECOME AN ARTIST.",
+          portraitImageUrl: res.portraitImageUrl || ABOUT_PORTRAIT_URL,
+          galleryImageUrl: res.galleryImageUrl || ABOUT_GALLERY_URL,
+          exhibitions: res.exhibitions && res.exhibitions.length > 0 ? res.exhibitions : EXHIBITIONS_DATA,
+        });
+      }
+    });
+  }, []);
+
   return (
     <section id="about" className="py-20 md:py-28 px-6 space-y-24 md:space-y-36 max-w-6xl mx-auto">
       
@@ -15,7 +36,7 @@ export const AboutSection: React.FC = () => {
           <div className="md:sticky md:top-24 space-y-2">
             <div className="overflow-hidden shadow-xs relative rounded-xs">
               <ResponsiveImage 
-                src={ABOUT_PORTRAIT_URL} 
+                src={aboutData.portraitImageUrl} 
                 alt="Marina Portrait" 
                 loading="eager"
                 fetchPriority="high"
@@ -31,7 +52,7 @@ export const AboutSection: React.FC = () => {
           
           {/* Section 1 — Top Summary */}
           <h2 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] font-light leading-snug uppercase tracking-wide">
-            MARINA VALITOVA DIDN'T SET OUT TO BECOME AN ARTIST.
+            {aboutData.title}
           </h2>
 
           <p className="font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light">
@@ -102,7 +123,7 @@ export const AboutSection: React.FC = () => {
         <div className="md:col-span-5">
           <div className="overflow-hidden shadow-xs relative rounded-xs">
             <ResponsiveImage 
-              src={ABOUT_GALLERY_URL} 
+              src={aboutData.galleryImageUrl} 
               alt="Exhibition Fine Art Photograph" 
               loading="lazy"
               decoding="async"
@@ -119,7 +140,7 @@ export const AboutSection: React.FC = () => {
 
           {/* Exhibition List */}
           <div className="divide-y divide-[#EAE6DF] border-t border-b border-[#EAE6DF]">
-            {EXHIBITIONS_DATA.map((item, index) => (
+            {aboutData.exhibitions.map((item, index) => (
               <div key={index} className="py-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 group">
                 <div className="space-y-1">
                   <div className="font-serif text-lg md:text-xl text-[#1A1A1A] font-light tracking-wide group-hover:text-[#666055] transition-colors">

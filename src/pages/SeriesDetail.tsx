@@ -5,7 +5,8 @@ import { Header } from '../components/Header';
 import { MainGallery } from '../sections/MainGallery';
 import { ResponsiveImage } from '../components/ResponsiveImage';
 import { Footer } from '../components/Footer';
-import { getSeriesBySlug, SeriesPhoto } from '../data/seriesData';
+import { getSeriesBySlug, SeriesData, SeriesPhoto } from '../data/seriesData';
+import { getSanitySeriesBySlug } from '../lib/sanityQueries';
 import { NotFound } from './NotFound';
 
 interface ZoomedPhoto {
@@ -16,13 +17,23 @@ interface ZoomedPhoto {
 
 export const SeriesDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const series = getSeriesBySlug(slug || '');
+  const [series, setSeries] = useState<SeriesData | undefined>(() => getSeriesBySlug(slug || ''));
+  const [loading, setLoading] = useState(true);
 
   const [zoomedPhoto, setZoomedPhoto] = useState<ZoomedPhoto | null>(null);
 
-  // Scroll to top when series changes
+  // Scroll to top and fetch Sanity series when slug changes
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (slug) {
+      setLoading(true);
+      getSanitySeriesBySlug(slug).then((res) => {
+        if (res) {
+          setSeries(res);
+        }
+        setLoading(false);
+      });
+    }
   }, [slug]);
 
   // Close zoomed photo on Escape key
