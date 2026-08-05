@@ -1,0 +1,6 @@
+{
+  "name": "Marina Photography",
+  "description": "Official portfolio website for Marina Valitova, fine art underwater photographer and freediver.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
