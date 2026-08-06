@@ -8,8 +8,6 @@ export const sanityConfig = {
   useCdn: true,
 };
 
-console.log(sanityConfig);
-
 export const sanityClient = createClient(sanityConfig);
 
 const builder = imageUrlBuilder(sanityClient);

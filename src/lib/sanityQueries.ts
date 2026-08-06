@@ -1,5 +1,3 @@
-console.log("SANITY QUERIES LOADED");
-
 import { sanityClient, urlFor } from './sanity';
 import { SERIES_LIST, SeriesData, SeriesPhoto } from '../data/seriesData';
 import { EXHIBITIONS_DATA, DIALOGUE_ITEMS, PRINTS_SERIES, ABOUT_PORTRAIT_URL, ABOUT_GALLERY_URL } from '../data/portfolioData';

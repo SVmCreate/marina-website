@@ -21,7 +21,6 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
   seriesList = SERIES_LIST
 }) => {
   
-  console.log(seriesList);
 
   return (
     <section id="gallery" className="py-12 md:py-20 px-6">
