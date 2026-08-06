@@ -1,3 +1,5 @@
+console.log("SANITY QUERIES LOADED");
+
 import { sanityClient, urlFor } from './sanity';
 import { SERIES_LIST, SeriesData, SeriesPhoto } from '../data/seriesData';
 import { EXHIBITIONS_DATA, DIALOGUE_ITEMS, PRINTS_SERIES, ABOUT_PORTRAIT_URL, ABOUT_GALLERY_URL } from '../data/portfolioData';
@@ -121,16 +123,27 @@ export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
 export async function getSanityAllSeries(): Promise<SeriesData[]> {
   try {
     const data = await sanityClient.fetch(ALL_SERIES_QUERY);
+    console.log("SANITY RESPONSE:", data);
     if (data && Array.isArray(data) && data.length > 0) {
+      console.log("DATA LENGTH:", data.length);
       return data.map((item: any) => {
-        const photos: SeriesPhoto[] = (item.photos || []).map((p: any, idx: number) => ({
-          id: p.id || `photo-${idx}`,
-          title: p.title || 'Untitled',
-          filename: p.filename || p.title || 'Untitled',
-          imageUrl: p.imageUrl ? urlFor(p.imageUrl) : '',
-          caption: p.caption,
-          year: p.year || item.year,
-        }));
+        
+        const photos: SeriesPhoto[] = (item.photos || []).map((p: any, idx: number) => {
+          const url = p.imageUrl ? urlFor(p.imageUrl) : "";
+
+          console.log("PHOTO URL", url);
+
+          return {
+           id: p.id || `photo-${idx}`,
+           title: p.title || "Untitled",
+           filename: p.filename || p.title || "Untitled",
+           imageUrl: url,
+           caption: p.caption,
+           year: p.year || item.year,
+          };
+        });
+        
+
 
         return {
           id: item._id || item.slug,
@@ -152,18 +165,31 @@ export async function getSanityAllSeries(): Promise<SeriesData[]> {
   return SERIES_LIST;
 }
 
+
+
+
 export async function getSanitySeriesBySlug(slug: string): Promise<SeriesData | undefined> {
   try {
     const item = await sanityClient.fetch(SERIES_BY_SLUG_QUERY, { slug });
+    console.log("SERIES ITEM", item);
     if (item && item.title) {
-      const photos: SeriesPhoto[] = (item.photos || []).map((p: any, idx: number) => ({
-        id: p.id || `photo-${idx}`,
-        title: p.title || 'Untitled',
-        filename: p.filename || p.title || 'Untitled',
-        imageUrl: p.imageUrl ? urlFor(p.imageUrl) : '',
-        caption: p.caption,
-        year: p.year || item.year,
-      }));
+      const photos: SeriesPhoto[] = (item.photos || []).map((p: any, idx: number) => {
+
+        console.log("PHOTO OBJECT", p);
+
+        const url = p.imageUrl ? urlFor(p.imageUrl) : "";
+
+        console.log("PHOTO URL", url);
+
+        return {
+          id: p.id || `photo-${idx}`,
+          title: p.title || "Untitled",
+          filename: p.filename || p.title || "Untitled",
+          imageUrl: url,
+          caption: p.caption,
+          year: p.year || item.year,
+        };
+      });
 
       return {
         id: item._id || item.slug,

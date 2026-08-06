@@ -20,9 +20,13 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
   photos,
   seriesList = SERIES_LIST
 }) => {
+  
+  console.log(seriesList);
+
   return (
     <section id="gallery" className="py-12 md:py-20 px-6">
       <div className="max-w-7xl mx-auto">
+
         
         {/* Section Header */}
         {showHeading && (
@@ -81,12 +85,12 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
               >
                 {/* Image Frame - Cover Photo */}
                 <div className="aspect-[3/4] overflow-hidden relative shadow-xs w-full">
-                  <ResponsiveImage 
-                    src={series.coverImageUrl} 
-                    alt={series.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+                  <ResponsiveImage
+                     src={series.coverImageUrl}
+                     alt={series.title}
+                     loading="lazy"
+                     decoding="async"
+                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300 flex items-center gap-1.5">

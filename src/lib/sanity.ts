@@ -8,6 +8,8 @@ export const sanityConfig = {
   useCdn: true,
 };
 
+console.log(sanityConfig);
+
 export const sanityClient = createClient(sanityConfig);
 
 const builder = imageUrlBuilder(sanityClient);
@@ -19,8 +21,14 @@ export function urlFor(source: any) {
   // If source is a sanity image object or ref
   if (source.asset || source._ref || source._type === 'image') {
     try {
-      return builder.image(source).auto('format').url();
-    } catch {
+      return builder
+        .image(source)
+        .width(900)
+        .fit('max')
+        .auto('format')
+        .quality(90)
+        .url();
+        } catch {
       return '';
     }
   }
