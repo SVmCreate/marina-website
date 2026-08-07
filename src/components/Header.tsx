@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { getSanitySiteSettings } from '../lib/sanityQueries';
 
 export const Header: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [siteSettings, setSiteSettings] = useState({
@@ -18,6 +20,7 @@ export const Header: React.FC = () => {
   const [lang, setLang] = useState<'ENG' | 'RUS'>(() => {
     return (localStorage.getItem('app_lang') as 'ENG' | 'RUS') || 'ENG';
   });
+  
 
   useEffect(() => {
     getSanitySiteSettings().then((res) => {
@@ -38,14 +41,21 @@ export const Header: React.FC = () => {
   }, []);
 
   const handleLangChange = (newLang: 'ENG' | 'RUS') => {
-    setLang(newLang);
-    localStorage.setItem('app_lang', newLang);
+  setLang(newLang);
+
+  const language = newLang === 'ENG' ? 'en' : 'ru';
+
+  i18n.changeLanguage(language);
+
+  localStorage.setItem('app_lang', newLang);
   };
 
   const navItems = siteSettings.mainNavigation.map((n) => ({
     path: n.url,
     label: n.label,
   }));
+
+  console.log("SITE SETTINGS", siteSettings.mainNavigation);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -95,7 +105,7 @@ export const Header: React.FC = () => {
                         : 'text-[#666055] hover:text-[#1A1A1A]'
                     }`}
                   >
-                    {item.label}
+                    {t(item.label.toLowerCase())}
                     {isActive && (
                       <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#1A1A1A]" />
                     )}
@@ -156,7 +166,7 @@ export const Header: React.FC = () => {
               type="button"
               onClick={() => setMobileMenuOpen(false)}
               className="p-2 -mr-2 text-[#1A1A1A] hover:text-[#666055] focus:outline-none transition-colors cursor-pointer"
-              aria-label="Close menu"
+              aria-label={t("closeMenu")}
             >
               <X className="w-6 h-6" />
             </button>
@@ -178,7 +188,7 @@ export const Header: React.FC = () => {
                         : 'text-[#8A857C] hover:text-[#1A1A1A]'
                     }`}
                   >
-                    <span>{item.label}</span>
+                    <span>{t(item.label.toLowerCase())}</span>
                     {isActive && (
                       <span className="w-2 h-2 rounded-full bg-[#1A1A1A]" />
                     )}

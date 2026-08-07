@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { SERIES_LIST, SeriesData, SeriesPhoto } from '../data/seriesData';
@@ -20,7 +21,8 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
   photos,
   seriesList = SERIES_LIST
 }) => {
-  
+
+  const { t } = useTranslation();
 
   return (
     <section id="gallery" className="py-12 md:py-20 px-6">
@@ -57,7 +59,7 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300 flex items-center gap-1.5">
-                      Zoom Photo
+                      {t("zoomPhoto")}
                     </span>
                   </div>
                 </div>
@@ -93,7 +95,7 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300 flex items-center gap-1.5">
-                      View Series
+                      {t("viewSeries")}
                     </span>
                   </div>
                 </div>

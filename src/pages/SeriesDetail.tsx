@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -16,6 +17,7 @@ interface ZoomedPhoto {
 }
 
 export const SeriesDetail: React.FC = () => {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [series, setSeries] = useState<SeriesData | undefined>(() => getSeriesBySlug(slug || ''));
   const [loading, setLoading] = useState(true);
@@ -130,7 +132,7 @@ export const SeriesDetail: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300">
-                    Zoom Photo
+                    {t("zoomPhoto")}
                   </span>
                 </div>
               </div>
@@ -165,7 +167,7 @@ export const SeriesDetail: React.FC = () => {
               setZoomedPhoto(null);
             }}
             className="absolute top-6 right-6 sm:top-8 sm:right-8 text-white/80 hover:text-white transition-colors flex items-center space-x-2 bg-black/40 hover:bg-black/60 px-3.5 py-2 rounded-xs border border-white/10 font-mono text-xs uppercase tracking-widest z-10 cursor-pointer"
-            aria-label="Close zoomed photo"
+            aria-label={t("close")}
           >
             <span>Close</span>
             <X className="w-4 h-4" />

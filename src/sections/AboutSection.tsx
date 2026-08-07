@@ -1,42 +1,86 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { ABOUT_PORTRAIT_URL, ABOUT_GALLERY_URL, EXHIBITIONS_DATA } from '../data/portfolioData';
 import { ResponsiveImage } from '../components/ResponsiveImage';
 import { getSanityAbout } from '../lib/sanityQueries';
 
 export const AboutSection: React.FC = () => {
-  const [aboutData, setAboutData] = useState({
-    title: "MARINA VALITOVA DIDN'T SET OUT TO BECOME AN ARTIST.",
-    portraitImageUrl: ABOUT_PORTRAIT_URL,
-    galleryImageUrl: ABOUT_GALLERY_URL,
-    exhibitions: EXHIBITIONS_DATA,
-  });
+  const { i18n } = useTranslation();
+  const [aboutData, setAboutData] = useState<any>(null);
+
+  const getLangCode = useCallback((overrideLang?: string) => {
+    if (overrideLang) return overrideLang.toLowerCase().startsWith('ru') ? 'ru' : 'en';
+    const stored = localStorage.getItem('app_lang') || 'ENG';
+    return stored === 'RUS' || i18n.language === 'ru' ? 'ru' : 'en';
+  }, [i18n.language]);
+
+  const loadData = useCallback((targetLang?: string) => {
+    const langCode = getLangCode(targetLang);
+
+    getSanityAbout(langCode).then((res) => {
+      console.log('Sanity fetched data:', res);
+      setAboutData(res || {});
+    });
+  }, [getLangCode]);
 
   useEffect(() => {
-    getSanityAbout().then((res) => {
-      if (res) {
-        setAboutData({
-          title: res.title || "MARINA VALITOVA DIDN'T SET OUT TO BECOME AN ARTIST.",
-          portraitImageUrl: res.portraitImageUrl || ABOUT_PORTRAIT_URL,
-          galleryImageUrl: res.galleryImageUrl || ABOUT_GALLERY_URL,
-          exhibitions: res.exhibitions && res.exhibitions.length > 0 ? res.exhibitions : EXHIBITIONS_DATA,
-        });
-      }
-    });
-  }, []);
+    loadData();
+
+    const handleLangChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      loadData(customEvent.detail);
+    };
+
+    window.addEventListener('app_lang_change', handleLangChange);
+    return () => window.removeEventListener('app_lang_change', handleLangChange);
+  }, [loadData]);
+
+  useEffect(() => {
+    loadData(i18n.language);
+  }, [i18n.language, loadData]);
+
+  // Парсим строку biography из Sanity на массив отдельных абзацев
+  const getParagraphs = (): string[] => {
+    const bio = aboutData?.biography;
+    if (!bio) return [];
+    
+    if (typeof bio === 'string') {
+      return bio.split(/\n+/).map((p) => p.trim()).filter(Boolean);
+    }
+    
+    if (Array.isArray(bio)) {
+      return bio
+        .map((b) => (typeof b === 'string' ? b : b?.children?.map((c: any) => c.text).join('')))
+        .filter(Boolean);
+    }
+    
+    return [];
+  };
+
+  const paragraphs = getParagraphs();
+
+  // Распределяем абзацы из массива Sanity по структуре верстки:
+  const p1 = paragraphs[0] || '';
+  const beat1_1 = paragraphs[1] || '';
+  const beat1_2 = paragraphs[2] || '';
+  const beat1_3 = paragraphs[3] || '';
+  const beat2_1 = paragraphs[4] || '';
+  const beat2_2 = paragraphs[5] || '';
+  const beat2_3 = paragraphs[6] || '';
 
   return (
     <section id="about" className="py-20 md:py-28 px-6 space-y-24 md:space-y-36 max-w-6xl mx-auto">
       
-      {/* BLOCK ONE (Two-column layout - First to appear on page) */}
+      {/* BLOCK ONE */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
         
-        {/* Left: Vertical Portrait Image (Sticky on Desktop) */}
+        {/* Left Image */}
         <div className="md:col-span-5">
           <div className="md:sticky md:top-24 space-y-2">
             <div className="overflow-hidden shadow-xs relative rounded-xs">
               <ResponsiveImage 
-                src={aboutData.portraitImageUrl} 
+                src={aboutData?.portraitImageUrl || ABOUT_PORTRAIT_URL} 
                 alt="Marina Portrait" 
                 loading="eager"
                 fetchPriority="high"
@@ -47,83 +91,74 @@ export const AboutSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Section 1 (Top Summary) & Section 2 (Full Story Beats) */}
+        {/* Right Content */}
         <div className="md:col-span-7 flex flex-col justify-center space-y-6 pt-2 md:pt-4">
           
-          {/* Section 1 — Top Summary */}
-          <h2 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] font-light leading-snug uppercase tracking-wide">
-            {aboutData.title}
-          </h2>
+          {/* Title из Sanity */}
+          {aboutData?.title && (
+            <h2 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] font-light leading-snug uppercase tracking-wide">
+              {aboutData.title}
+            </h2>
+          )}
 
-          <p className="font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light">
-            She grew up in Western Siberia, where long winters shaped an early fascination with the natural world.
-          </p>
+          {/* Первый главный абзац */}
+          {p1 && (
+            <p className="font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light">
+              {p1}
+            </p>
+          )}
 
-          <p className="font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light">
-            Before she picked up a camera, she had already lived several lives. She trained as a petroleum geologist. She competed in swimming from the age of twelve. She crossed the Bosphorus in Istanbul, learned to skydive, and later performed underwater in one of the world's largest aquariums, in Shanghai. None of it was part of a plan. She simply wanted to see what was beyond the familiar.
-          </p>
-
-          {/* Divider between Section 1 and Section 2 */}
           <div className="pt-6 border-t border-[#EAE6DF]" />
 
-          {/* Section 2 — Full Story (Beat 1 & Beat 2) */}
+          {/* Story Beats Block 1 */}
           <div className="space-y-10">
-            
-            {/* Beat 1 — Photography enters */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-              className="space-y-4 font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light"
-            >
-              <p>
-                Photography entered her life much later.
-              </p>
-              <p>
-                By then, she had spent years underwater — as a freediver, a performer, a model. The camera became a natural extension of that world. Not because she wanted to document it, but because she had found a place where gravity, movement, and the human body worked differently.
-              </p>
-              <p>
-                Her photographs are often called surreal. Nothing in them is AI constructed. Every image is made in camera, underwater, through breath, movement, and light. The impossible, achieved physically — not with AI.
-              </p>
-            </motion.div>
+            {(beat1_1 || beat1_2 || beat1_3) && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+                className="space-y-4 font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light"
+              >
+                {beat1_1 && <p>{beat1_1}</p>}
+                {beat1_2 && <p>{beat1_2}</p>}
+                {beat1_3 && <p>{beat1_3}</p>}
+              </motion.div>
+            )}
 
-            {/* Subtle Horizontal Rule between Beats */}
             <hr className="border-[#EAE6DF]" />
 
-            {/* Beat 2 — Same Planet, Other Worlds */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-              className="space-y-4 font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light"
-            >
-              <p>
-                <em className="italic">Same Planet. Other Worlds</em> is her first major body of artistic work. Rather than imagining another planet, the series asks us to look at this one differently. Water becomes more than a setting — it becomes a space where the usual rules dissolve, and new relationships between bodies, light, and perception can emerge.
-              </p>
-              <p>
-                It's only the first chapter.
-              </p>
-              <p>
-                Marina isn't interested in repeating herself, or settling into a recognisable style. Every new body of work starts with a question she can't yet answer. Sometimes it leads to a new visual universe. Sometimes it becomes a deeply human story. Photography is simply how she goes looking for the answer.
-              </p>
-            </motion.div>
-
+            {/* Story Beats Block 2 */}
+            {(beat2_1 || beat2_2 || beat2_3) && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+                className="space-y-4 font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light"
+              >
+                {/* Возвращаем красивый акцентный шрифтовой стиль для первого предложения второго блока */}
+                {beat2_1 && (
+                  <p className="font-serif italic text-base md:text-lg text-[#1A1A1A]">
+                    {beat2_1}
+                  </p>
+                )}
+                {beat2_2 && <p>{beat2_2}</p>}
+                {beat2_3 && <p>{beat2_3}</p>}
+              </motion.div>
+            )}
           </div>
 
         </div>
 
       </div>
 
-      {/* BLOCK TWO (Selected Exhibitions) */}
+      {/* BLOCK TWO — Exhibitions */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-start pt-12 border-t border-[#EAE6DF]/80">
-        
-        {/* Left: Vertical Image (Repeated Layout Component) */}
         <div className="md:col-span-5">
           <div className="overflow-hidden shadow-xs relative rounded-xs">
             <ResponsiveImage 
-              src={aboutData.galleryImageUrl} 
+              src={aboutData?.galleryImageUrl || ABOUT_GALLERY_URL} 
               alt="Exhibition Fine Art Photograph" 
               loading="lazy"
               decoding="async"
@@ -132,15 +167,13 @@ export const AboutSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Awards / Galleries Content */}
         <div className="md:col-span-7 flex flex-col justify-center space-y-6 pt-2 md:pt-4">
           <h3 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] font-light uppercase leading-snug">
             SELECTED EXHIBITIONS, MONOGRAPHS & PUBLIC COLLECTIONS
           </h3>
 
-          {/* Exhibition List */}
           <div className="divide-y divide-[#EAE6DF] border-t border-b border-[#EAE6DF]">
-            {aboutData.exhibitions.map((item, index) => (
+            {(aboutData?.exhibitions || EXHIBITIONS_DATA).map((item: any, index: number) => (
               <div key={index} className="py-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 group">
                 <div className="space-y-1">
                   <div className="font-serif text-lg md:text-xl text-[#1A1A1A] font-light tracking-wide group-hover:text-[#666055] transition-colors">
@@ -162,15 +195,9 @@ export const AboutSection: React.FC = () => {
               </div>
             ))}
           </div>
-
-          <p className="text-xs text-[#8A857C] italic font-light">
-            * Full list of institutional loans and permanent gallery installations available upon request.
-          </p>
         </div>
-
       </div>
 
     </section>
   );
 };
-
