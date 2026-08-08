@@ -14,6 +14,23 @@ export interface ResponsiveImageProps extends React.ImgHTMLAttributes<HTMLImageE
   referrerPolicy?: React.HTMLAttributeReferrerPolicy;
 }
 
+/**
+ * Helper to ensure Sanity CDN URLs deliver properly resampled, high-quality web images
+ * (auto=format, q=90, max width) to prevent client-side GPU downsampling grain/aliasing.
+ */
+function optimizeSanityUrl(url: string, targetWidth?: number | string): string {
+  if (!url || typeof url !== 'string') return url;
+  
+  // If it's a Sanity CDN image URL without explicit width parameters
+  if (url.includes('cdn.sanity.io') && !url.includes('w=')) {
+    const w = targetWidth ? String(targetWidth) : '1800';
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}auto=format&fit=max&q=90&w=${w}`;
+  }
+  
+  return url;
+}
+
 export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   src,
   alt,
@@ -24,13 +41,16 @@ export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   loading = 'lazy',
   decoding = 'async',
   fetchPriority,
-  className,
+  className = '',
   referrerPolicy = 'no-referrer',
+  style,
   ...rest
 }) => {
+  const optimizedSrc = optimizeSanityUrl(src, width);
+
   return (
     <img
-      src={src}
+      src={optimizedSrc}
       alt={alt}
       srcSet={srcSet}
       sizes={sizes}
@@ -41,6 +61,11 @@ export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       {...(fetchPriority ? { fetchPriority } : {})}
       className={className}
       referrerPolicy={referrerPolicy}
+      style={{
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        ...style,
+      }}
       {...rest}
     />
   );

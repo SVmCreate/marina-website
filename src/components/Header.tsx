@@ -20,7 +20,6 @@ export const Header: React.FC = () => {
   const [lang, setLang] = useState<'ENG' | 'RUS'>(() => {
     return (localStorage.getItem('app_lang') as 'ENG' | 'RUS') || 'ENG';
   });
-  
 
   useEffect(() => {
     getSanitySiteSettings().then((res) => {
@@ -41,13 +40,13 @@ export const Header: React.FC = () => {
   }, []);
 
   const handleLangChange = (newLang: 'ENG' | 'RUS') => {
-  setLang(newLang);
+    setLang(newLang);
 
-  const language = newLang === 'ENG' ? 'en' : 'ru';
+    const language = newLang === 'ENG' ? 'en' : 'ru';
 
-  i18n.changeLanguage(language);
+    i18n.changeLanguage(language);
 
-  localStorage.setItem('app_lang', newLang);
+    localStorage.setItem('app_lang', newLang);
   };
 
   const navItems = siteSettings.mainNavigation.map((n) => ({
@@ -83,10 +82,14 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-3">
             <Link 
               to="/"
-              className="text-left font-serif text-lg tracking-[0.18em] text-[#1A1A1A] hover:opacity-70 transition-opacity"
+              className="flex items-center hover:opacity-70 transition-opacity"
               onClick={() => setMobileMenuOpen(false)}
             >
-              {siteSettings.siteTitle}
+              <img
+                src="/logo.svg"
+                alt={siteSettings.siteTitle}
+                className="h-8 w-auto"
+              />
             </Link>
           </div>
 
@@ -157,10 +160,14 @@ export const Header: React.FC = () => {
           <div className="flex items-center justify-between h-16 border-b border-[#EAE6DF] -mx-6 sm:-mx-8 px-6 sm:px-8 -mt-6 sm:-mt-8 mb-6">
             <Link 
               to="/"
-              className="font-serif text-lg tracking-[0.18em] text-[#1A1A1A] uppercase"
+              className="flex items-center hover:opacity-70 transition-opacity"
               onClick={() => setMobileMenuOpen(false)}
             >
-              {siteSettings.siteTitle}
+              <img
+                src="/logo.svg"
+                alt={siteSettings.siteTitle}
+                className="h-8 w-auto"
+              />
             </Link>
             <button
               type="button"
@@ -244,4 +251,3 @@ export const Header: React.FC = () => {
     </>
   );
 };
-

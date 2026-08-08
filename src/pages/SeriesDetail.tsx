@@ -17,26 +17,26 @@ interface ZoomedPhoto {
 }
 
 export const SeriesDetail: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
-  const [series, setSeries] = useState<SeriesData | undefined>(() => getSeriesBySlug(slug || ''));
+  const [series, setSeries] = useState<SeriesData | undefined>(() => getSeriesBySlug(slug || '', i18n.language));
   const [loading, setLoading] = useState(true);
 
   const [zoomedPhoto, setZoomedPhoto] = useState<ZoomedPhoto | null>(null);
 
-  // Scroll to top and fetch Sanity series when slug changes
+  // Scroll to top and fetch Sanity series when slug or language changes
   useEffect(() => {
     window.scrollTo(0, 0);
     if (slug) {
       setLoading(true);
-      getSanitySeriesBySlug(slug).then((res) => {
+      getSanitySeriesBySlug(slug, i18n.language).then((res) => {
         if (res) {
           setSeries(res);
         }
         setLoading(false);
       });
     }
-  }, [slug]);
+  }, [slug, i18n.language]);
 
   // Close zoomed photo on Escape key
   useEffect(() => {
@@ -128,10 +128,10 @@ export const SeriesDetail: React.FC = () => {
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015] [backface-visibility:hidden]"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center pointer-events-none">
+                  <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/70 px-3 py-1.5 transition-opacity duration-300">
                     {t("zoomPhoto")}
                   </span>
                 </div>
@@ -169,7 +169,7 @@ export const SeriesDetail: React.FC = () => {
             className="absolute top-6 right-6 sm:top-8 sm:right-8 text-white/80 hover:text-white transition-colors flex items-center space-x-2 bg-black/40 hover:bg-black/60 px-3.5 py-2 rounded-xs border border-white/10 font-mono text-xs uppercase tracking-widest z-10 cursor-pointer"
             aria-label={t("close")}
           >
-            <span>Close</span>
+            <span>{t("close")}</span>
             <X className="w-4 h-4" />
           </button>
 
@@ -208,4 +208,3 @@ export const SeriesDetail: React.FC = () => {
     </>
   );
 };
-

@@ -44,8 +44,8 @@ export async function getSanityAbout(lang: string = 'en') {
       biography
     ),
 
-    "portraitImageUrl": portraitImage.asset->url,
-    "galleryImageUrl": galleryImage.asset->url,
+    "portraitImageUrl": coalesce(portraitImage.image.asset->url, portraitImage.asset->url),
+    "galleryImageUrl": coalesce(galleryImage.image.asset->url, galleryImage.asset->url),
 
     "exhibitions": exhibitions[] {
       "title": coalesce(
@@ -126,24 +126,20 @@ export async function getSanitySiteSettings(lang: string = 'en') {
 }
 
 /**
- * Запрос всех серий для главной страницы (Home.tsx) — с отладкой coverImage
+ * Запрос всех серий для главной страницы (Home.tsx / MainGallery.tsx)
  */
 export async function getSanityAllSeries(lang: string = 'en') {
   const currentLang = normalizeLang(lang);
 
-  const query = `*[_type == "series"]{
+  const query = `*[_type == "series"] | order(sortOrder asc){
     _id,
     "title": coalesce(title[$lang], title.ru, title.en, title),
     "slug": slug.current,
-    "coverImageDebug": coverImage
+    "coverImageUrl": coalesce(coverImage.image.asset->url, coverImage.asset->url)
   }`;
 
   try {
-    const result = await sanityClient.fetch(query, { lang: currentLang });
-
-    console.log('ALL SERIES FROM SANITY', result);
-
-    return result;
+    return await sanityClient.fetch(query, { lang: currentLang });
   } catch (error) {
     console.error('Error fetching Sanity All Series:', error);
     return [];
@@ -164,16 +160,16 @@ export async function getSanitySeriesBySlug(
     "title": coalesce(title[$lang], title.ru, title.en, title),
     "description": coalesce(description[$lang], description.ru, description.en, description),
     year,
-    location,
-    technique,
-    "coverImageUrl": coverImage.asset->url,
+    "location": coalesce(location[$lang], location.ru, location.en, location),
+    "technique": coalesce(technique[$lang], technique.ru, technique.en, technique),
+    "coverImageUrl": coalesce(coverImage.image.asset->url, coverImage.asset->url),
     "photos": photos[] {
       "id": _key,
-      title,
-      caption,
+      "title": coalesce(title[$lang], title.ru, title.en, title),
+      "caption": coalesce(caption[$lang], caption.ru, caption.en, caption),
       year,
-      "filename": coalesce(filename, title),
-      "imageUrl": image.asset->url
+      "filename": coalesce(filename, title[$lang], title.ru, title.en, title),
+      "imageUrl": coalesce(image.asset->url, image.image.asset->url, asset->url)
     }
   }`;
 
@@ -198,6 +194,9 @@ export async function getSanityContact(lang: string = 'en') {
     "title": coalesce(title[$lang], title.ru, title.en, title),
     email,
     phone,
+    "location": coalesce(location[$lang], location.ru, location.en, location),
+    representation,
+    socialLinks,
     socials
   }`;
 
@@ -205,6 +204,34 @@ export async function getSanityContact(lang: string = 'en') {
     return await sanityClient.fetch(query, { lang: currentLang });
   } catch (error) {
     console.error('Error fetching Sanity Contact:', error);
+    return null;
+  }
+}
+
+/**
+ * Запрос данных для раздела Prints (ContactCard.tsx / PrintsSection.tsx)
+ */
+export async function getSanityPrints(lang: string = 'en') {
+  const currentLang = normalizeLang(lang);
+
+  const query = `*[_type == "prints"][0]{
+    "title": coalesce(title[$lang], title.ru, title.en, title),
+    "description": coalesce(description[$lang], description.ru, description.en, description),
+    "printSeries": printSeries[] {
+      id,
+      "title": coalesce(title[$lang], title.ru, title.en, title),
+      "description": coalesce(description[$lang], description.ru, description.en, description),
+      year,
+      dimensions,
+      medium,
+      "imageUrl": coalesce(image.asset->url, image.image.asset->url, asset->url)
+    }
+  }`;
+
+  try {
+    return await sanityClient.fetch(query, { lang: currentLang });
+  } catch (error) {
+    console.error('Error fetching Sanity Prints:', error);
     return null;
   }
 }

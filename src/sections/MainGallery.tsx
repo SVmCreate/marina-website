@@ -28,12 +28,11 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
     <section id="gallery" className="py-12 md:py-20 px-6">
       <div className="max-w-7xl mx-auto">
 
-        
         {/* Section Header */}
         {showHeading && (
           <div className="mb-16 md:mb-20 flex flex-col items-center text-center">
             <h3 className="font-serif text-3xl md:text-4xl text-[#1A1A1A] font-light tracking-wide uppercase">
-              SELECTED SERIES
+              {t("selectedSeries", "SELECTED SERIES")}
             </h3>
           </div>
         )}
@@ -55,10 +54,10 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
                     alt={item.title}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015] [backface-visibility:hidden]"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                    <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300 flex items-center gap-1.5">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center pointer-events-none">
+                    <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/70 px-3 py-1.5 transition-opacity duration-300 flex items-center gap-1.5">
                       {t("zoomPhoto")}
                     </span>
                   </div>
@@ -91,10 +90,10 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
                      alt={series.title}
                      loading="lazy"
                      decoding="async"
-                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.015] [backface-visibility:hidden]"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                    <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/60 px-3 py-1.5 backdrop-blur-xs transition-opacity duration-300 flex items-center gap-1.5">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center pointer-events-none">
+                    <span className="opacity-0 group-hover:opacity-100 text-white font-mono text-[10px] uppercase tracking-widest bg-black/70 px-3 py-1.5 transition-opacity duration-300 flex items-center gap-1.5">
                       {t("viewSeries")}
                     </span>
                   </div>
@@ -107,7 +106,7 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
                       {series.title}
                     </h4>
                     <span className="font-mono text-[10px] text-[#8A857C] uppercase tracking-widest group-hover:text-[#1A1A1A] transition-colors">
-                      Series →
+                      {t("seriesLink", "Series")} →
                     </span>
                   </div>
                 )}
@@ -120,5 +119,3 @@ export const MainGallery: React.FC<MainGalleryProps> = ({
     </section>
   );
 };
-
-
