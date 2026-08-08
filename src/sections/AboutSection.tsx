@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import { ABOUT_PORTRAIT_URL, ABOUT_GALLERY_URL, EXHIBITIONS_DATA } from '../data/portfolioData';
+import { EXHIBITIONS_DATA } from '../data/portfolioData';
 import { ResponsiveImage } from '../components/ResponsiveImage';
 import { getSanityAbout } from '../lib/sanityQueries';
 
@@ -69,6 +69,11 @@ export const AboutSection: React.FC = () => {
   const beat2_2 = paragraphs[5] || '';
   const beat2_3 = paragraphs[6] || '';
 
+  const isRu = getLangCode() === 'ru';
+  const defaultExhibitionsTitle = isRu
+    ? 'ВЫБРАННЫЕ ВЫСТАВКИ, МОНОГРАФИИ И ГОСУДАРСТВЕННЫЕ КОЛЛЕКЦИИ'
+    : 'SELECTED EXHIBITIONS, MONOGRAPHS & PUBLIC COLLECTIONS';
+
   return (
     <section id="about" className="py-20 md:py-28 px-6 space-y-24 md:space-y-36 max-w-6xl mx-auto">
       
@@ -78,15 +83,17 @@ export const AboutSection: React.FC = () => {
         {/* Left Image */}
         <div className="md:col-span-5">
           <div className="md:sticky md:top-24 space-y-2">
-            <div className="overflow-hidden shadow-xs relative rounded-xs">
-              <ResponsiveImage 
-                src={aboutData?.portraitImageUrl || ABOUT_PORTRAIT_URL} 
-                alt="Marina Portrait" 
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                className="w-full h-auto block"
-              />
+            <div className="overflow-hidden shadow-xs relative rounded-xs min-h-[300px]">
+              {aboutData?.portraitImageUrl && (
+                <ResponsiveImage 
+                  src={aboutData.portraitImageUrl} 
+                  alt="Marina Portrait" 
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="w-full h-auto block"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -137,7 +144,6 @@ export const AboutSection: React.FC = () => {
                 transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
                 className="space-y-4 font-sans text-sm md:text-base text-[#4A453C] leading-relaxed font-light"
               >
-                {/* Возвращаем красивый акцентный шрифтовой стиль для первого предложения второго блока */}
                 {beat2_1 && (
                   <p className="font-serif italic text-base md:text-lg text-[#1A1A1A]">
                     {beat2_1}
@@ -156,20 +162,22 @@ export const AboutSection: React.FC = () => {
       {/* BLOCK TWO — Exhibitions */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-start pt-12 border-t border-[#EAE6DF]/80">
         <div className="md:col-span-5">
-          <div className="overflow-hidden shadow-xs relative rounded-xs">
-            <ResponsiveImage 
-              src={aboutData?.galleryImageUrl || ABOUT_GALLERY_URL} 
-              alt="Exhibition Fine Art Photograph" 
-              loading="lazy"
-              decoding="async"
-              className="w-full h-auto block"
-            />
+          <div className="overflow-hidden shadow-xs relative rounded-xs min-h-[300px]">
+            {aboutData?.galleryImageUrl && (
+              <ResponsiveImage 
+                src={aboutData.galleryImageUrl} 
+                alt="Exhibition Fine Art Photograph" 
+                loading="lazy"
+                decoding="async"
+                className="w-full h-auto block"
+              />
+            )}
           </div>
         </div>
 
         <div className="md:col-span-7 flex flex-col justify-center space-y-6 pt-2 md:pt-4">
           <h3 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] font-light uppercase leading-snug">
-            SELECTED EXHIBITIONS, MONOGRAPHS & PUBLIC COLLECTIONS
+            {aboutData?.exhibitionsTitle || defaultExhibitionsTitle}
           </h3>
 
           <div className="divide-y divide-[#EAE6DF] border-t border-b border-[#EAE6DF]">

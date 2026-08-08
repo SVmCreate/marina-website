@@ -44,6 +44,15 @@ export async function getSanityAbout(lang: string = 'en') {
       biography
     ),
 
+    "exhibitionsTitle": coalesce(
+      exhibitionsTitle[$lang],
+      exhibitionsTitle[_key == $lang][0].value,
+      exhibitionsTitle_ru,
+      exhibitionsTitle.ru,
+      exhibitionsTitle.en,
+      exhibitionsTitle
+    ),
+
     "portraitImageUrl": coalesce(portraitImage.image.asset->url, portraitImage.asset->url),
     "galleryImageUrl": coalesce(galleryImage.image.asset->url, galleryImage.asset->url),
 
@@ -56,9 +65,30 @@ export async function getSanityAbout(lang: string = 'en') {
         title.en,
         title
       ),
-      venue,
-      location,
-      type,
+      "venue": coalesce(
+        venue[$lang],
+        venue[_key == $lang][0].value,
+        venue_ru,
+        venue.ru,
+        venue.en,
+        venue
+      ),
+      "location": coalesce(
+        location[$lang],
+        location[_key == $lang][0].value,
+        location_ru,
+        location.ru,
+        location.en,
+        location
+      ),
+      "type": coalesce(
+        type[$lang],
+        type[_key == $lang][0].value,
+        type_ru,
+        type.ru,
+        type.en,
+        type
+      ),
       year
     },
 
@@ -89,7 +119,15 @@ export async function getSanityAbout(lang: string = 'en') {
   }`;
 
   try {
-    return await sanityClient.fetch(query, { lang: currentLang });
+    const result = await sanityClient.fetch(query, { lang: currentLang });
+
+    console.log('SANITY ABOUT:', result);
+    console.log('LANG:', currentLang);
+    console.log('EXHIBITIONS TITLE:', result?.exhibitionsTitle);
+    console.log('DIALOGUES:', result?.dialogues);
+    console.log('EXHIBITIONS:', result?.exhibitions);
+
+    return result;
   } catch (error) {
     console.error('Error fetching Sanity About:', error);
     return null;

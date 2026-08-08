@@ -1,36 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { DIALOGUE_ITEMS, EXHIBITIONS_DATA } from '../data/portfolioData';
 import { getSanityAbout } from '../lib/sanityQueries';
 
-const RECOGNITION_CATEGORIES = [
-  {
-    id: 'exhibitions',
-    title: 'EXHIBITIONS & MUSEUM SHOWS',
-    type: 'exhibitions',
-  },
-  {
-    id: 'curiosity-process',
-    title: 'DIALOGUE ON CURIOSITY, VISION & WATER',
-    type: 'dialogue',
-    qIndexes: [0, 1, 2, 3]
-  },
-  {
-    id: 'presence-freediving',
-    title: 'DIALOGUE ON PRESENCE, FREEDIVING & CREATION',
-    type: 'dialogue',
-    qIndexes: [4, 5, 6]
-  },
-  {
-    id: 'perception-mediums',
-    title: 'DIALOGUE ON PERCEPTION, MYSTERY & MEDIUMS',
-    type: 'dialogue',
-    qIndexes: [7, 8, 9, 10]
-  }
-];
-
 export const DarkDialogueSection: React.FC = () => {
+  const { t, i18n } = useTranslation();
+
   const [openCategoryIds, setOpenCategoryIds] = useState<Set<string>>(
     new Set(['exhibitions', 'curiosity-process'])
   );
@@ -38,8 +15,22 @@ export const DarkDialogueSection: React.FC = () => {
   const [dialogues, setDialogues] = useState(DIALOGUE_ITEMS);
   const [exhibitions, setExhibitions] = useState(EXHIBITIONS_DATA);
 
-  const loadData = (lang?: string) => {
-    getSanityAbout(lang).then((res) => {
+  // Нормализация языка к 'en' | 'ru'
+  const getLangCode = useCallback((overrideLang?: string) => {
+    if (overrideLang) {
+      const lower = overrideLang.toLowerCase();
+      if (lower.startsWith('ru') || lower === 'rus') return 'ru';
+      return 'en';
+    }
+    const stored = localStorage.getItem('app_lang') || 'ENG';
+    const currentI18n = i18n.language ? i18n.language.toLowerCase() : 'en';
+    return stored === 'RUS' || currentI18n.startsWith('ru') ? 'ru' : 'en';
+  }, [i18n.language]);
+
+  const loadData = useCallback((targetLang?: string) => {
+    const langCode = getLangCode(targetLang);
+
+    getSanityAbout(langCode).then((res) => {
       if (res) {
         if (res.dialogues && res.dialogues.length > 0) {
           setDialogues(res.dialogues);
@@ -49,19 +40,49 @@ export const DarkDialogueSection: React.FC = () => {
         }
       }
     });
-  };
+  }, [getLangCode]);
 
+  // Загрузка при монтировании и при изменении i18n.language
   useEffect(() => {
-    loadData();
+    loadData(i18n.language);
 
-    const handleLangChange = (e: CustomEvent | Event) => {
-      const lang = (e as CustomEvent).detail;
-      loadData(lang);
+    const handleLangChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      loadData(customEvent.detail);
     };
 
     window.addEventListener('app_lang_change', handleLangChange);
     return () => window.removeEventListener('app_lang_change', handleLangChange);
-  }, []);
+  }, [i18n.language, loadData]);
+
+  const currentLang = getLangCode();
+  const isRu = currentLang === 'ru';
+
+  const RECOGNITION_CATEGORIES = [
+    {
+      id: 'exhibitions',
+      title: t('dialogue.cat_exhibitions', isRu ? 'ВЫСТАВКИ И МУЗЕЙНЫЕ ПРОЕКТЫ' : 'EXHIBITIONS & MUSEUM SHOWS'),
+      type: 'exhibitions',
+    },
+    {
+      id: 'curiosity-process',
+      title: t('dialogue.cat_curiosity', isRu ? 'ДИАЛОГ О ВДОХНОВЕНИИ, ВИДЕНИИ И ВОДЕ' : 'DIALOGUE ON CURIOSITY, VISION & WATER'),
+      type: 'dialogue',
+      qIndexes: [0, 1, 2, 3]
+    },
+    {
+      id: 'presence-freediving',
+      title: t('dialogue.cat_presence', isRu ? 'ДИАЛОГ О ПРИСУТСТВИИ, ФРИДАЙВИНГЕ И ТВОРЧЕСТВЕ' : 'DIALOGUE ON PRESENCE, FREEDIVING & CREATION'),
+      type: 'dialogue',
+      qIndexes: [4, 5, 6]
+    },
+    {
+      id: 'perception-mediums',
+      title: t('dialogue.cat_perception', isRu ? 'ДИАЛОГ О ВОСПРИЯТИИ, ТАЙНЕ И МЕДИУМАХ' : 'DIALOGUE ON PERCEPTION, MYSTERY & MEDIUMS'),
+      type: 'dialogue',
+      qIndexes: [7, 8, 9, 10]
+    }
+  ];
 
   const toggleCategory = (id: string) => {
     setOpenCategoryIds((prev) => {
@@ -85,10 +106,10 @@ export const DarkDialogueSection: React.FC = () => {
           {/* Left Column */}
           <div className="md:col-span-5 md:sticky md:top-28">
             <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-light tracking-wide uppercase leading-tight">
-              DIALOGUE ON VISION & METHOD
+              {t('dialogue.title', isRu ? 'ДИАЛОГ О ВИДЕНИИ И МЕТОДЕ' : 'DIALOGUE ON VISION & METHOD')}
             </h2>
             <p className="mt-4 text-xs md:text-sm text-[#94A3B8] font-light leading-relaxed max-w-sm">
-              Conversations on light refraction, weightless human form, and archival silver gelatin prints.
+              {t('dialogue.subtitle', isRu ? 'Размышления о преломлении света, невесомости человеческой формы и музейных отпечатках.' : 'Conversations on light refraction, weightless human form, and archival silver gelatin prints.')}
             </p>
           </div>
 

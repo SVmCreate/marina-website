@@ -58,12 +58,16 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
         
         {/* Brand & Studio Location */}
-        <div className="space-y-1.5">
+        <div className="space-y-2 flex flex-col items-center md:items-start">
           <Link 
             to="/" 
-            className="font-serif text-base tracking-[0.18em] text-[#1A1A1A] uppercase hover:opacity-70 transition-opacity block"
+            className="hover:opacity-70 transition-opacity inline-block"
           >
-            {siteSettings.siteTitle}
+            <img
+              src="/logo.svg"
+              alt={siteSettings.siteTitle}
+              className="w-24 h-auto"
+            />
           </Link>
           <p className="font-mono text-[11px] tracking-wider text-[#8A857C] uppercase">
             {siteSettings.siteDescription}
@@ -79,7 +83,7 @@ export const Footer: React.FC = () => {
             {t('nav.series', isRu ? 'Серии' : 'Series')}
           </Link>
           <Link to="/about" className="hover:text-[#1A1A1A] transition-colors">
-            {t('nav.about', isRu ? 'О художнике' : 'About')}
+            {t('nav.about', isRu ? 'Обо мне' : 'About')}
           </Link>
           <Link to="/contacts" className="hover:text-[#1A1A1A] transition-colors">
             {t('nav.contacts', isRu ? 'Контакты' : 'Contacts')}
